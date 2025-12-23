@@ -5,7 +5,7 @@ A Laravel-native SDK for the Zoom API. Integrates seamlessly with Laravel 11+, u
 ## Installation
 
 ```bash
-composer require connectors-studio/zoom
+composer require larasdks/zoom
 ```
 
 ## Configuration
