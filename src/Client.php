@@ -132,7 +132,7 @@ class Client
 
         return [
             'data' => $json,
-            'pagination' => $this->parsePagination($response->headers()),
+            'pagination' => $this->parsePagination($json),
         ];
     }
 
@@ -200,12 +200,41 @@ class Client
     }
 
     /**
-     * Parse pagination from response headers or body.
+     * Parse pagination from the response body.
+     *
+     * Zoom API uses cursor-based pagination with the following fields:
+     * - page_count: Number of pages available
+     * - page_number: Current page number
+     * - page_size: Number of records per page
+     * - total_records: Total number of records
+     * - next_page_token: Token for fetching the next page
      */
-    protected function parsePagination(array $headers): ?array
+    protected function parsePagination(array $data): ?array
     {
-        // Zoom API uses cursor-based pagination in response body
-        // This method can be extended to parse Link headers if needed
-        return null;
+        $pagination = [];
+
+        // Extract pagination fields if they exist
+        if (isset($data['page_count'])) {
+            $pagination['page_count'] = $data['page_count'];
+        }
+
+        if (isset($data['page_number'])) {
+            $pagination['page_number'] = $data['page_number'];
+        }
+
+        if (isset($data['page_size'])) {
+            $pagination['page_size'] = $data['page_size'];
+        }
+
+        if (isset($data['total_records'])) {
+            $pagination['total_records'] = $data['total_records'];
+        }
+
+        if (isset($data['next_page_token'])) {
+            $pagination['next_page_token'] = $data['next_page_token'];
+        }
+
+        // Return null if no pagination fields were found
+        return empty($pagination) ? null : $pagination;
     }
 }

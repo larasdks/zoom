@@ -2,6 +2,7 @@
 
 namespace laraSDKs\Zoom\Resources;
 
+use Illuminate\Http\Client\ConnectionException;
 use laraSDKs\Zoom\Client;
 use laraSDKs\Zoom\Exceptions\ZoomApiException;
 
@@ -20,10 +21,12 @@ class Users
     /**
      * List all users.
      *
-     * @throws ZoomApiException
+     * @throws ZoomApiException|ConnectionException
      */
     public function list(array $query = []): array
     {
+        echo "\nEEEEE\n";
+
         return $this->client->request('get', 'users', [
             'query' => $query,
         ])['data'];
@@ -32,11 +35,11 @@ class Users
     /**
      * Get a user by ID or email.
      *
-     * @throws ZoomApiException
+     * @throws ZoomApiException|ConnectionException
      */
     public function get(string $userId, array $query = []): array
     {
-        return $this->client->request('get', "users/{$userId}", [
+        return $this->client->request('get', "users/$userId", [
             'query' => $query,
         ])['data'];
     }
@@ -44,7 +47,7 @@ class Users
     /**
      * Create a new user.
      *
-     * @throws ZoomApiException
+     * @throws ZoomApiException|ConnectionException
      */
     public function create(array $data): array
     {
@@ -56,11 +59,11 @@ class Users
     /**
      * Update a user.
      *
-     * @throws ZoomApiException
+     * @throws ZoomApiException|ConnectionException
      */
     public function update(string $userId, array $data): array
     {
-        return $this->client->request('patch', "users/{$userId}", [
+        return $this->client->request('patch', "users/$userId", [
             'data' => $data,
         ])['data'];
     }
@@ -68,11 +71,11 @@ class Users
     /**
      * Delete a user.
      *
-     * @throws ZoomApiException
+     * @throws ZoomApiException|ConnectionException
      */
     public function delete(string $userId, array $query = []): void
     {
-        $this->client->request('delete', "users/{$userId}", [
+        $this->client->request('delete', "users/$userId", [
             'query' => $query,
         ]);
     }
@@ -80,11 +83,11 @@ class Users
     /**
      * Get user settings.
      *
-     * @throws ZoomApiException
+     * @throws ZoomApiException|ConnectionException
      */
     public function getSettings(string $userId, array $query = []): array
     {
-        return $this->client->request('get', "users/{$userId}/settings", [
+        return $this->client->request('get', "users/$userId/settings", [
             'query' => $query,
         ])['data'];
     }
@@ -92,11 +95,11 @@ class Users
     /**
      * Update user settings.
      *
-     * @throws ZoomApiException
+     * @throws ZoomApiException|ConnectionException
      */
     public function updateSettings(string $userId, array $data): array
     {
-        return $this->client->request('patch', "users/{$userId}/settings", [
+        return $this->client->request('patch', "users/$userId/settings", [
             'data' => $data,
         ])['data'];
     }
