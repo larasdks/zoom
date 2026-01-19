@@ -18,7 +18,6 @@ class Reports
         $this->client = $client;
     }
 
-
     /**
      * List all meeting participants for a meeting.
      *
