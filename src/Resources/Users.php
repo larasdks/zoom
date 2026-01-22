@@ -4,6 +4,9 @@ namespace laraSDKs\Zoom\Resources;
 
 use Illuminate\Http\Client\ConnectionException;
 use laraSDKs\Zoom\Client;
+use laraSDKs\Zoom\DTOs\UserCollectionDTO;
+use laraSDKs\Zoom\DTOs\UserDTO;
+use laraSDKs\Zoom\DTOs\UserSettingsDTO;
 use laraSDKs\Zoom\Exceptions\ZoomApiException;
 
 /**
@@ -23,13 +26,13 @@ class Users
      *
      * @throws ZoomApiException|ConnectionException
      */
-    public function list(array $query = []): array
+    public function list(array $query = []): UserCollectionDTO
     {
-        echo "\nEEEEE\n";
-
-        return $this->client->request('get', 'users', [
+        $response = $this->client->request('get', 'users', [
             'query' => $query,
-        ])['data'];
+        ]);
+
+        return UserCollectionDTO::fromArray($response['data'], $response['pagination']);
     }
 
     /**
@@ -37,11 +40,13 @@ class Users
      *
      * @throws ZoomApiException|ConnectionException
      */
-    public function get(string $userId, array $query = []): array
+    public function get(string $userId, array $query = []): UserDTO
     {
-        return $this->client->request('get', "users/$userId", [
+        $response = $this->client->request('get', "users/$userId", [
             'query' => $query,
-        ])['data'];
+        ]);
+
+        return UserDTO::fromArray($response['data']);
     }
 
     /**
@@ -49,11 +54,13 @@ class Users
      *
      * @throws ZoomApiException|ConnectionException
      */
-    public function create(array $data): array
+    public function create(array $data): UserDTO
     {
-        return $this->client->request('post', 'users', [
+        $response = $this->client->request('post', 'users', [
             'data' => $data,
-        ])['data'];
+        ]);
+
+        return UserDTO::fromArray($response['data']);
     }
 
     /**
@@ -61,11 +68,11 @@ class Users
      *
      * @throws ZoomApiException|ConnectionException
      */
-    public function update(string $userId, array $data): array
+    public function update(string $userId, array $data): void
     {
-        return $this->client->request('patch', "users/$userId", [
+        $this->client->request('patch', "users/$userId", [
             'data' => $data,
-        ])['data'];
+        ]);
     }
 
     /**
@@ -85,11 +92,13 @@ class Users
      *
      * @throws ZoomApiException|ConnectionException
      */
-    public function getSettings(string $userId, array $query = []): array
+    public function getSettings(string $userId, array $query = []): UserSettingsDTO
     {
-        return $this->client->request('get', "users/$userId/settings", [
+        $response = $this->client->request('get', "users/$userId/settings", [
             'query' => $query,
-        ])['data'];
+        ]);
+
+        return UserSettingsDTO::fromArray($response['data']);
     }
 
     /**
@@ -97,10 +106,10 @@ class Users
      *
      * @throws ZoomApiException|ConnectionException
      */
-    public function updateSettings(string $userId, array $data): array
+    public function updateSettings(string $userId, array $data): void
     {
-        return $this->client->request('patch', "users/$userId/settings", [
+        $this->client->request('patch', "users/$userId/settings", [
             'data' => $data,
-        ])['data'];
+        ]);
     }
 }

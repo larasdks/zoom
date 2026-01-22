@@ -1,5 +1,5 @@
 {
-    "version": "0.0.2",
+    "version": "0.0.3",
     "name": "larasdks/zoom",
     "description": "A Laravel package by laraSDKs to facilitate seamless integration with the Zoom API.",
     "license": "MIT",
