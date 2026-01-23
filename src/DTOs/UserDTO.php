@@ -3,7 +3,7 @@
 namespace laraSDKs\Zoom\DTOs;
 
 use Carbon\Carbon;
-use DateTime;
+use laraSDKs\Zoom\Enums\UserType;
 
 /**
  * Data Transfer Object for Zoom User.
@@ -16,13 +16,13 @@ readonly class UserDTO
         public ?string $firstName = null,
         public ?string $lastName = null,
         public ?string $displayName = null,
-        public ?int $type = null,
+        public ?UserType $type = null,
         public ?string $status = null,
         public ?int $pmi = null,
         public ?string $timezone = null,
         public ?int $verified = null,
-        public ?DateTime $userCreatedAt = null,
-        public ?DateTime $lastLoginTime = null,
+        public ?Carbon $userCreatedAt = null,
+        public ?Carbon $lastLoginTime = null,
         public ?string $language = null,
         public ?string $phoneNumber = null,
         public ?string $phoneCountry = null,
@@ -62,7 +62,7 @@ readonly class UserDTO
             firstName: $data['first_name'] ?? null,
             lastName: $data['last_name'] ?? null,
             displayName: $data['display_name'] ?? null,
-            type: $data['type'] ?? null,
+            type: UserType::tryFromInt($data['type'] ?? null),
             status: $data['status'] ?? null,
             pmi: $data['pmi'] ?? null,
             timezone: $data['timezone'] ?? null,
@@ -117,13 +117,7 @@ readonly class UserDTO
      */
     public function getUserTypeName(): string
     {
-        return match ($this->type) {
-            1 => 'Basic',
-            2 => 'Licensed',
-            3 => 'On-Prem',
-            99 => 'None',
-            default => 'Unknown',
-        };
+        return $this->type?->getName() ?? 'Unknown';
     }
 
     /**
@@ -147,7 +141,7 @@ readonly class UserDTO
      */
     public function isLicensed(): bool
     {
-        return $this->type === 2;
+        return $this->type?->isLicensed() ?? false;
     }
 
     /**
@@ -207,7 +201,7 @@ readonly class UserDTO
             'first_name' => $this->firstName,
             'last_name' => $this->lastName,
             'display_name' => $this->displayName,
-            'type' => $this->type,
+            'type' => $this->type?->value,
             'status' => $this->status,
             'pmi' => $this->pmi,
             'timezone' => $this->timezone,

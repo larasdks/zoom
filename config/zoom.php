@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'page_size' => env('ZOOM_PAGE_SIZE', 300),
     'api' => [
         'endpoint' => env('ZOOM_API_ENDPOINT', 'https://api.zoom.us/v2'),
         'timeout' => env('ZOOM_TIMEOUT', 60),

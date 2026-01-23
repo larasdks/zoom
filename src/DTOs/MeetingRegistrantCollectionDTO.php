@@ -5,20 +5,19 @@ namespace laraSDKs\Zoom\DTOs;
 use ArrayAccess;
 use Countable;
 use Iterator;
-use laraSDKs\Zoom\Enums\UserType;
 
 /**
- * Collection of UserDTO objects with pagination support.
+ * Collection of MeetingRegistrantDTO objects with pagination support.
  */
-class UserCollectionDTO implements ArrayAccess, Countable, Iterator
+class MeetingRegistrantCollectionDTO implements ArrayAccess, Countable, Iterator
 {
     private int $position = 0;
 
     /**
-     * @param  UserDTO[]  $users
+     * @param  MeetingRegistrantDTO[]  $registrants
      */
     public function __construct(
-        private array $users = [],
+        private array $registrants = [],
         public readonly ?int $pageCount = null,
         public readonly ?int $pageNumber = null,
         public readonly ?int $pageSize = null,
@@ -27,24 +26,25 @@ class UserCollectionDTO implements ArrayAccess, Countable, Iterator
     ) {}
 
     /**
-     * Create a UserCollectionDTO from API response.
+     * Create a MeetingRegistrantCollectionDTO from API response.
      */
     public static function fromArray(array $data, ?array $pagination = null): self
     {
-        $users = [];
-        // Handle both direct user list and nested 'users' key
-        $userList = $data['users'] ?? $data;
+        $registrants = [];
 
-        if (is_array($userList)) {
-            foreach ($userList as $userData) {
-                if (is_array($userData)) {
-                    $users[] = UserDTO::fromArray($userData);
+        // Handle both direct registrant list and nested 'registrants' key
+        $registrantList = $data['registrants'] ?? $data;
+
+        if (is_array($registrantList)) {
+            foreach ($registrantList as $registrantData) {
+                if (is_array($registrantData)) {
+                    $registrants[] = MeetingRegistrantDTO::fromArray($registrantData);
                 }
             }
         }
 
         return new self(
-            users: $users,
+            registrants: $registrants,
             pageCount: $pagination['page_count'] ?? null,
             pageNumber: $pagination['page_number'] ?? null,
             pageSize: $pagination['page_size'] ?? null,
@@ -54,21 +54,21 @@ class UserCollectionDTO implements ArrayAccess, Countable, Iterator
     }
 
     /**
-     * Get all users in the collection.
+     * Get all registrants in the collection.
      *
-     * @return UserDTO[]
+     * @return MeetingRegistrantDTO[]
      */
     public function all(): array
     {
-        return $this->users;
+        return $this->registrants;
     }
 
     /**
-     * Get the first user in the collection.
+     * Get the first registrant in the collection.
      */
-    public function first(): ?UserDTO
+    public function first(): ?MeetingRegistrantDTO
     {
-        return $this->users[0] ?? null;
+        return $this->registrants[0] ?? null;
     }
 
     /**
@@ -80,12 +80,12 @@ class UserCollectionDTO implements ArrayAccess, Countable, Iterator
     }
 
     /**
-     * Filter users by a callback.
+     * Filter registrants by a callback.
      */
     public function filter(callable $callback): self
     {
         return new self(
-            users: array_filter($this->users, $callback),
+            registrants: array_filter($this->registrants, $callback),
             pageCount: $this->pageCount,
             pageNumber: $this->pageNumber,
             pageSize: $this->pageSize,
@@ -95,51 +95,35 @@ class UserCollectionDTO implements ArrayAccess, Countable, Iterator
     }
 
     /**
-     * Map users through a callback.
+     * Map registrants through a callback.
      */
     public function map(callable $callback): array
     {
-        return array_map($callback, $this->users);
+        return array_map($callback, $this->registrants);
     }
 
     /**
-     * Filter users by type.
+     * Get only approved registrants.
      */
-    public function byType(UserType $type): self
+    public function approved(): self
     {
-        return $this->filter(fn (UserDTO $user) => $user->type === $type);
+        return $this->filter(fn (MeetingRegistrantDTO $registrant) => $registrant->isApproved());
     }
 
     /**
-     * Get only licensed users.
+     * Get only denied registrants.
      */
-    public function licensed(): self
+    public function denied(): self
     {
-        return $this->filter(fn (UserDTO $user) => $user->isLicensed());
+        return $this->filter(fn (MeetingRegistrantDTO $registrant) => $registrant->isDenied());
     }
 
     /**
-     * Get only basic users.
+     * Get only pending registrants.
      */
-    public function basic(): self
+    public function pending(): self
     {
-        return $this->filter(fn (UserDTO $user) => $user->type === UserType::BASIC);
-    }
-
-    /**
-     * Get only active users.
-     */
-    public function active(): self
-    {
-        return $this->filter(fn (UserDTO $user) => $user->isActive());
-    }
-
-    /**
-     * Get only verified users.
-     */
-    public function verified(): self
-    {
-        return $this->filter(fn (UserDTO $user) => $user->isVerified());
+        return $this->filter(fn (MeetingRegistrantDTO $registrant) => $registrant->isPending());
     }
 
     /**
@@ -148,7 +132,7 @@ class UserCollectionDTO implements ArrayAccess, Countable, Iterator
     public function toArray(): array
     {
         return [
-            'users' => array_map(fn (UserDTO $user) => $user->toArray(), $this->users),
+            'registrants' => array_map(fn (MeetingRegistrantDTO $registrant) => $registrant->toArray(), $this->registrants),
             'pagination' => [
                 'page_count' => $this->pageCount,
                 'page_number' => $this->pageNumber,
@@ -160,9 +144,9 @@ class UserCollectionDTO implements ArrayAccess, Countable, Iterator
     }
 
     // Iterator implementation
-    public function current(): UserDTO
+    public function current(): MeetingRegistrantDTO
     {
-        return $this->users[$this->position];
+        return $this->registrants[$this->position];
     }
 
     public function key(): int
@@ -182,39 +166,39 @@ class UserCollectionDTO implements ArrayAccess, Countable, Iterator
 
     public function valid(): bool
     {
-        return isset($this->users[$this->position]);
+        return isset($this->registrants[$this->position]);
     }
 
     // Countable implementation
     public function count(): int
     {
-        return count($this->users);
+        return count($this->registrants);
     }
 
     // ArrayAccess implementation
     public function offsetExists(mixed $offset): bool
     {
-        return isset($this->users[$offset]);
+        return isset($this->registrants[$offset]);
     }
 
-    public function offsetGet(mixed $offset): ?UserDTO
+    public function offsetGet(mixed $offset): ?MeetingRegistrantDTO
     {
-        return $this->users[$offset] ?? null;
+        return $this->registrants[$offset] ?? null;
     }
 
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        if ($value instanceof UserDTO) {
+        if ($value instanceof MeetingRegistrantDTO) {
             if (is_null($offset)) {
-                $this->users[] = $value;
+                $this->registrants[] = $value;
             } else {
-                $this->users[$offset] = $value;
+                $this->registrants[$offset] = $value;
             }
         }
     }
 
     public function offsetUnset(mixed $offset): void
     {
-        unset($this->users[$offset]);
+        unset($this->registrants[$offset]);
     }
 }

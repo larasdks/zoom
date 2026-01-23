@@ -1,11 +1,11 @@
 {
-    "version": "0.0.3",
+    "version": "0.0.4",
     "name": "larasdks/zoom",
     "description": "A Laravel package by laraSDKs to facilitate seamless integration with the Zoom API.",
     "license": "MIT",
     "type": "library",
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.2",
         "illuminate/support": "^12.44",
         "illuminate/http": "^12.44",
         "laravel/socialite": "^5.24"

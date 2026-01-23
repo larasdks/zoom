@@ -4,6 +4,10 @@ namespace laraSDKs\Zoom\Resources;
 
 use Illuminate\Http\Client\ConnectionException;
 use laraSDKs\Zoom\Client;
+use laraSDKs\Zoom\DTOs\MeetingCollectionDTO;
+use laraSDKs\Zoom\DTOs\MeetingDTO;
+use laraSDKs\Zoom\DTOs\MeetingRegistrantCollectionDTO;
+use laraSDKs\Zoom\DTOs\MeetingRegistrantDTO;
 use laraSDKs\Zoom\Exceptions\ZoomApiException;
 
 /**
@@ -23,11 +27,13 @@ class Meetings
      *
      * @throws ZoomApiException|ConnectionException
      */
-    public function create(string $userId, array $data): array
+    public function create(string $userId, array $data): MeetingDTO
     {
-        return $this->client->request('post', "users/$userId/meetings", [
+        $response = $this->client->request('post', "users/$userId/meetings", [
             'data' => $data,
-        ])['data'];
+        ]);
+
+        return MeetingDTO::fromArray($response['data']);
     }
 
     /**
@@ -35,11 +41,13 @@ class Meetings
      *
      * @throws ZoomApiException|ConnectionException
      */
-    public function list(string $userId, array $query = []): array
+    public function list(string $userId, array $query = []): MeetingCollectionDTO
     {
-        return $this->client->request('get', "users/$userId/meetings", [
+        $response = $this->client->request('get', "users/$userId/meetings", [
             'query' => $query,
-        ])['data'];
+        ]);
+
+        return MeetingCollectionDTO::fromArray($response['data'], $response['pagination']);
     }
 
     /**
@@ -47,11 +55,13 @@ class Meetings
      *
      * @throws ZoomApiException|ConnectionException
      */
-    public function get(int $meetingId, array $query = []): array
+    public function get(int $meetingId, array $query = []): MeetingDTO
     {
-        return $this->client->request('get', "meetings/$meetingId", [
+        $response = $this->client->request('get', "meetings/$meetingId", [
             'query' => $query,
-        ])['data'];
+        ]);
+
+        return MeetingDTO::fromArray($response['data']);
     }
 
     /**
@@ -59,11 +69,11 @@ class Meetings
      *
      * @throws ZoomApiException|ConnectionException
      */
-    public function update(int $meetingId, array $data): array
+    public function update(int $meetingId, array $data): void
     {
-        return $this->client->request('patch', "meetings/$meetingId", [
+        $this->client->request('patch', "meetings/$meetingId", [
             'data' => $data,
-        ])['data'];
+        ]);
     }
 
     /**
@@ -83,11 +93,13 @@ class Meetings
      *
      * @throws ZoomApiException|ConnectionException
      */
-    public function addRegistrant(int $meetingId, array $data): array
+    public function addRegistrant(int $meetingId, array $data): MeetingRegistrantDTO
     {
-        return $this->client->request('post', "meetings/$meetingId/registrants", [
+        $response = $this->client->request('post', "meetings/$meetingId/registrants", [
             'data' => $data,
-        ])['data'];
+        ]);
+
+        return MeetingRegistrantDTO::fromArray($response['data']);
     }
 
     /**
@@ -95,10 +107,12 @@ class Meetings
      *
      * @throws ZoomApiException|ConnectionException
      */
-    public function listRegistrants(int $meetingId, array $query = []): array
+    public function listRegistrants(int $meetingId, array $query = []): MeetingRegistrantCollectionDTO
     {
-        return $this->client->request('get', "meetings/$meetingId/registrants", [
+        $response = $this->client->request('get', "meetings/$meetingId/registrants", [
             'query' => $query,
-        ])['data'];
+        ]);
+
+        return MeetingRegistrantCollectionDTO::fromArray($response['data'], $response['pagination']);
     }
 }
