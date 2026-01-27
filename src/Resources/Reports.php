@@ -4,10 +4,11 @@ namespace laraSDKs\Zoom\Resources;
 
 use Illuminate\Http\Client\ConnectionException;
 use laraSDKs\Zoom\Client;
+use laraSDKs\Zoom\DTOs\ParticipantCollectionDTO;
 use laraSDKs\Zoom\Exceptions\ZoomApiException;
 
 /**
- * Service class for Zoom Meetings resource.
+ * Service class for Zoom Reports resource.
  */
 class Reports
 {
@@ -23,10 +24,12 @@ class Reports
      *
      * @throws ZoomApiException|ConnectionException
      */
-    public function meetingParticipants(string $meetingId, array $query = []): array
+    public function meetingParticipants(string $meetingId, array $query = []): ParticipantCollectionDTO
     {
-        return $this->client->request('get', "/report/meetings/$meetingId/participants", [
+        $response = $this->client->request('get', "/report/meetings/$meetingId/participants", [
             'query' => $query,
-        ])['data'];
+        ]);
+
+        return ParticipantCollectionDTO::fromArray($response['data'], $response['pagination']);
     }
 }

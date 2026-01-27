@@ -2,29 +2,15 @@
 
 namespace laraSDKs\Zoom\DTOs;
 
-use ArrayAccess;
-use Countable;
-use Iterator;
 use laraSDKs\Zoom\Enums\UserType;
 
 /**
  * Collection of UserDTO objects with pagination support.
+ *
+ * @extends BaseCollectionDTO<UserDTO>
  */
-class UserCollectionDTO implements ArrayAccess, Countable, Iterator
+class UserCollectionDTO extends BaseCollectionDTO
 {
-    private int $position = 0;
-
-    /**
-     * @param  UserDTO[]  $users
-     */
-    public function __construct(
-        private array $users = [],
-        public readonly ?int $pageCount = null,
-        public readonly ?int $pageNumber = null,
-        public readonly ?int $pageSize = null,
-        public readonly ?int $totalRecords = null,
-        public readonly ?string $nextPageToken = null
-    ) {}
 
     /**
      * Create a UserCollectionDTO from API response.
@@ -44,7 +30,7 @@ class UserCollectionDTO implements ArrayAccess, Countable, Iterator
         }
 
         return new self(
-            users: $users,
+            items: $users,
             pageCount: $pagination['page_count'] ?? null,
             pageNumber: $pagination['page_number'] ?? null,
             pageSize: $pagination['page_size'] ?? null,
@@ -54,52 +40,13 @@ class UserCollectionDTO implements ArrayAccess, Countable, Iterator
     }
 
     /**
-     * Get all users in the collection.
+     * Get all users (alias for all()).
      *
      * @return UserDTO[]
      */
-    public function all(): array
+    public function users(): array
     {
-        return $this->users;
-    }
-
-    /**
-     * Get the first user in the collection.
-     */
-    public function first(): ?UserDTO
-    {
-        return $this->users[0] ?? null;
-    }
-
-    /**
-     * Check if there are more pages available.
-     */
-    public function hasMorePages(): bool
-    {
-        return ! empty($this->nextPageToken);
-    }
-
-    /**
-     * Filter users by a callback.
-     */
-    public function filter(callable $callback): self
-    {
-        return new self(
-            users: array_filter($this->users, $callback),
-            pageCount: $this->pageCount,
-            pageNumber: $this->pageNumber,
-            pageSize: $this->pageSize,
-            totalRecords: $this->totalRecords,
-            nextPageToken: $this->nextPageToken
-        );
-    }
-
-    /**
-     * Map users through a callback.
-     */
-    public function map(callable $callback): array
-    {
-        return array_map($callback, $this->users);
+        return $this->all();
     }
 
     /**
@@ -148,73 +95,8 @@ class UserCollectionDTO implements ArrayAccess, Countable, Iterator
     public function toArray(): array
     {
         return [
-            'users' => array_map(fn (UserDTO $user) => $user->toArray(), $this->users),
-            'pagination' => [
-                'page_count' => $this->pageCount,
-                'page_number' => $this->pageNumber,
-                'page_size' => $this->pageSize,
-                'total_records' => $this->totalRecords,
-                'next_page_token' => $this->nextPageToken,
-            ],
+            'users' => array_map(fn (UserDTO $user) => $user->toArray(), $this->items),
+            'pagination' => $this->getPaginationInfo(),
         ];
-    }
-
-    // Iterator implementation
-    public function current(): UserDTO
-    {
-        return $this->users[$this->position];
-    }
-
-    public function key(): int
-    {
-        return $this->position;
-    }
-
-    public function next(): void
-    {
-        $this->position++;
-    }
-
-    public function rewind(): void
-    {
-        $this->position = 0;
-    }
-
-    public function valid(): bool
-    {
-        return isset($this->users[$this->position]);
-    }
-
-    // Countable implementation
-    public function count(): int
-    {
-        return count($this->users);
-    }
-
-    // ArrayAccess implementation
-    public function offsetExists(mixed $offset): bool
-    {
-        return isset($this->users[$offset]);
-    }
-
-    public function offsetGet(mixed $offset): ?UserDTO
-    {
-        return $this->users[$offset] ?? null;
-    }
-
-    public function offsetSet(mixed $offset, mixed $value): void
-    {
-        if ($value instanceof UserDTO) {
-            if (is_null($offset)) {
-                $this->users[] = $value;
-            } else {
-                $this->users[$offset] = $value;
-            }
-        }
-    }
-
-    public function offsetUnset(mixed $offset): void
-    {
-        unset($this->users[$offset]);
     }
 }

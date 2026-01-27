@@ -8,6 +8,20 @@ use laraSDKs\Zoom\Enums\MeetingType;
 
 /**
  * Data Transfer Object for Zoom Meeting.
+ *
+ * All fields from official Zoom Meetings API documentation:
+ * - id: Meeting ID (int64)
+ * - uuid: Unique Meeting ID
+ * - host_id: ID of the user who is set as host
+ * - topic: Meeting topic
+ * - type: Meeting type (1=Instant, 2=Scheduled, 3=Recurring no fixed time, 8=Recurring fixed time)
+ * - agenda: Meeting description (truncated to 250 chars in list)
+ * - created_at: Time of creation
+ * - duration: Meeting duration in minutes
+ * - start_time: Meeting start time
+ * - timezone: Timezone to format stardsft time
+ * - join_url: URL to join the meeting
+ * - pmi: Personal meeting ID (only if PMI was used to schedule)
  */
 readonly class MeetingDTO
 {
@@ -17,25 +31,13 @@ readonly class MeetingDTO
         public string $hostId,
         public ?string $topic = null,
         public ?MeetingType $type = null,
-        public ?string $status = null,
-        public ?Carbon $startTime = null,
-        public ?int $duration = null,
-        public ?string $timezone = null,
         public ?string $agenda = null,
         public ?Carbon $createdAt = null,
+        public ?int $duration = null,
+        public ?Carbon $startTime = null,
+        public ?string $timezone = null,
         public ?string $joinUrl = null,
-        public ?string $startUrl = null,
-        public ?string $password = null,
-        public ?string $h323Password = null,
-        public ?string $pstnPassword = null,
-        public ?string $encryptedPassword = null,
         public ?string $pmi = null,
-        public ?array $settings = null,
-        public ?array $recurrence = null,
-        public ?array $occurrences = null,
-        public ?array $trackingFields = null,
-        public ?string $registrationUrl = null,
-        public ?bool $preSchedule = null,
         public array $rawData = []
     ) {}
 
@@ -51,25 +53,13 @@ readonly class MeetingDTO
             hostId: $data['host_id'] ?? '',
             topic: $data['topic'] ?? null,
             type: MeetingType::tryFromInt($data['type'] ?? null),
-            status: $data['status'] ?? null,
-            startTime: isset($data['start_time']) ? Carbon::parse($data['start_time']) : null,
-            duration: $data['duration'] ?? null,
-            timezone: $data['timezone'] ?? null,
             agenda: $data['agenda'] ?? null,
             createdAt: isset($data['created_at']) ? Carbon::parse($data['created_at']) : null,
+            duration: $data['duration'] ?? null,
+            startTime: isset($data['start_time']) ? Carbon::parse($data['start_time']) : null,
+            timezone: $data['timezone'] ?? null,
             joinUrl: $data['join_url'] ?? null,
-            startUrl: $data['start_url'] ?? null,
-            password: $data['password'] ?? null,
-            h323Password: $data['h323_password'] ?? null,
-            pstnPassword: $data['pstn_password'] ?? null,
-            encryptedPassword: $data['encrypted_password'] ?? null,
             pmi: $data['pmi'] ?? null,
-            settings: $data['settings'] ?? null,
-            recurrence: $data['recurrence'] ?? null,
-            occurrences: $data['occurrences'] ?? null,
-            trackingFields: $data['tracking_fields'] ?? null,
-            registrationUrl: $data['registration_url'] ?? null,
-            preSchedule: $data['pre_schedule'] ?? null,
             rawData: $data
         );
     }
@@ -127,7 +117,7 @@ readonly class MeetingDTO
             return false;
         }
         $endTime = clone $this->startTime;
-        $endTime->modify("+{$this->duration} minutes");
+        $endTime->modify("+$this->duration minutes");
 
         return $endTime <= new DateTime;
     }
@@ -149,49 +139,17 @@ readonly class MeetingDTO
             return null;
         }
         $endTime = clone $this->startTime;
-        $endTime->modify("+{$this->duration} minutes");
+        $endTime->modify("+$this->duration minutes");
 
         return $endTime;
     }
 
     /**
-     * Get a specific setting value.
+     * Check if this is a Personal Meeting (PMI).
      */
-    public function getSetting(string $key, mixed $default = null): mixed
+    public function isPMI(): bool
     {
-        return $this->settings[$key] ?? $default;
-    }
-
-    /**
-     * Check if waiting room is enabled.
-     */
-    public function hasWaitingRoom(): bool
-    {
-        return $this->getSetting('waiting_room', false);
-    }
-
-    /**
-     * Check if join before host is enabled.
-     */
-    public function canJoinBeforeHost(): bool
-    {
-        return $this->getSetting('join_before_host', false);
-    }
-
-    /**
-     * Check if mute upon entry is enabled.
-     */
-    public function isMuteUponEntry(): bool
-    {
-        return $this->getSetting('mute_upon_entry', false);
-    }
-
-    /**
-     * Check if auto recording is enabled and get the type.
-     */
-    public function getAutoRecordingType(): ?string
-    {
-        return $this->getSetting('auto_recording');
+        return ! empty($this->pmi);
     }
 
     /**
@@ -205,25 +163,13 @@ readonly class MeetingDTO
             'host_id' => $this->hostId,
             'topic' => $this->topic,
             'type' => $this->type?->value,
-            'status' => $this->status,
-            'start_time' => $this->startTime?->format('c'),
-            'duration' => $this->duration,
-            'timezone' => $this->timezone,
             'agenda' => $this->agenda,
             'created_at' => $this->createdAt?->format('c'),
+            'duration' => $this->duration,
+            'start_time' => $this->startTime?->format('c'),
+            'timezone' => $this->timezone,
             'join_url' => $this->joinUrl,
-            'start_url' => $this->startUrl,
-            'password' => $this->password,
-            'h323_password' => $this->h323Password,
-            'pstn_password' => $this->pstnPassword,
-            'encrypted_password' => $this->encryptedPassword,
             'pmi' => $this->pmi,
-            'settings' => $this->settings,
-            'recurrence' => $this->recurrence,
-            'occurrences' => $this->occurrences,
-            'tracking_fields' => $this->trackingFields,
-            'registration_url' => $this->registrationUrl,
-            'pre_schedule' => $this->preSchedule,
         ];
     }
 }

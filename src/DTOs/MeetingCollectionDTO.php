@@ -2,29 +2,15 @@
 
 namespace laraSDKs\Zoom\DTOs;
 
-use ArrayAccess;
-use Countable;
-use Iterator;
 use laraSDKs\Zoom\Enums\MeetingType;
 
 /**
  * Collection of MeetingDTO objects with pagination support.
+ *
+ * @extends BaseCollectionDTO<MeetingDTO>
  */
-class MeetingCollectionDTO implements ArrayAccess, Countable, Iterator
+class MeetingCollectionDTO extends BaseCollectionDTO
 {
-    private int $position = 0;
-
-    /**
-     * @param  MeetingDTO[]  $meetings
-     */
-    public function __construct(
-        private array $meetings = [],
-        public readonly ?int $pageCount = null,
-        public readonly ?int $pageNumber = null,
-        public readonly ?int $pageSize = null,
-        public readonly ?int $totalRecords = null,
-        public readonly ?string $nextPageToken = null
-    ) {}
 
     /**
      * Create a MeetingCollectionDTO from API response.
@@ -45,7 +31,7 @@ class MeetingCollectionDTO implements ArrayAccess, Countable, Iterator
         }
 
         return new self(
-            meetings: $meetings,
+            items: $meetings,
             pageCount: $pagination['page_count'] ?? null,
             pageNumber: $pagination['page_number'] ?? null,
             pageSize: $pagination['page_size'] ?? null,
@@ -55,52 +41,13 @@ class MeetingCollectionDTO implements ArrayAccess, Countable, Iterator
     }
 
     /**
-     * Get all meetings in the collection.
+     * Get all meetings (alias for all()).
      *
      * @return MeetingDTO[]
      */
-    public function all(): array
+    public function meetings(): array
     {
-        return $this->meetings;
-    }
-
-    /**
-     * Get the first meeting in the collection.
-     */
-    public function first(): ?MeetingDTO
-    {
-        return $this->meetings[0] ?? null;
-    }
-
-    /**
-     * Check if there are more pages available.
-     */
-    public function hasMorePages(): bool
-    {
-        return ! empty($this->nextPageToken);
-    }
-
-    /**
-     * Filter meetings by a callback.
-     */
-    public function filter(callable $callback): self
-    {
-        return new self(
-            meetings: array_filter($this->meetings, $callback),
-            pageCount: $this->pageCount,
-            pageNumber: $this->pageNumber,
-            pageSize: $this->pageSize,
-            totalRecords: $this->totalRecords,
-            nextPageToken: $this->nextPageToken
-        );
-    }
-
-    /**
-     * Map meetings through a callback.
-     */
-    public function map(callable $callback): array
-    {
-        return array_map($callback, $this->meetings);
+        return $this->all();
     }
 
     /**
@@ -157,73 +104,8 @@ class MeetingCollectionDTO implements ArrayAccess, Countable, Iterator
     public function toArray(): array
     {
         return [
-            'meetings' => array_map(fn (MeetingDTO $meeting) => $meeting->toArray(), $this->meetings),
-            'pagination' => [
-                'page_count' => $this->pageCount,
-                'page_number' => $this->pageNumber,
-                'page_size' => $this->pageSize,
-                'total_records' => $this->totalRecords,
-                'next_page_token' => $this->nextPageToken,
-            ],
+            'meetings' => array_map(fn (MeetingDTO $meeting) => $meeting->toArray(), $this->items),
+            'pagination' => $this->getPaginationInfo(),
         ];
-    }
-
-    // Iterator implementation
-    public function current(): MeetingDTO
-    {
-        return $this->meetings[$this->position];
-    }
-
-    public function key(): int
-    {
-        return $this->position;
-    }
-
-    public function next(): void
-    {
-        $this->position++;
-    }
-
-    public function rewind(): void
-    {
-        $this->position = 0;
-    }
-
-    public function valid(): bool
-    {
-        return isset($this->meetings[$this->position]);
-    }
-
-    // Countable implementation
-    public function count(): int
-    {
-        return count($this->meetings);
-    }
-
-    // ArrayAccess implementation
-    public function offsetExists(mixed $offset): bool
-    {
-        return isset($this->meetings[$offset]);
-    }
-
-    public function offsetGet(mixed $offset): ?MeetingDTO
-    {
-        return $this->meetings[$offset] ?? null;
-    }
-
-    public function offsetSet(mixed $offset, mixed $value): void
-    {
-        if ($value instanceof MeetingDTO) {
-            if (is_null($offset)) {
-                $this->meetings[] = $value;
-            } else {
-                $this->meetings[$offset] = $value;
-            }
-        }
-    }
-
-    public function offsetUnset(mixed $offset): void
-    {
-        unset($this->meetings[$offset]);
     }
 }

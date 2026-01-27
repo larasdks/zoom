@@ -2,28 +2,13 @@
 
 namespace laraSDKs\Zoom\DTOs;
 
-use ArrayAccess;
-use Countable;
-use Iterator;
-
 /**
  * Collection of MeetingRegistrantDTO objects with pagination support.
+ *
+ * @extends BaseCollectionDTO<MeetingRegistrantDTO>
  */
-class MeetingRegistrantCollectionDTO implements ArrayAccess, Countable, Iterator
+class MeetingRegistrantCollectionDTO extends BaseCollectionDTO
 {
-    private int $position = 0;
-
-    /**
-     * @param  MeetingRegistrantDTO[]  $registrants
-     */
-    public function __construct(
-        private array $registrants = [],
-        public readonly ?int $pageCount = null,
-        public readonly ?int $pageNumber = null,
-        public readonly ?int $pageSize = null,
-        public readonly ?int $totalRecords = null,
-        public readonly ?string $nextPageToken = null
-    ) {}
 
     /**
      * Create a MeetingRegistrantCollectionDTO from API response.
@@ -44,7 +29,7 @@ class MeetingRegistrantCollectionDTO implements ArrayAccess, Countable, Iterator
         }
 
         return new self(
-            registrants: $registrants,
+            items: $registrants,
             pageCount: $pagination['page_count'] ?? null,
             pageNumber: $pagination['page_number'] ?? null,
             pageSize: $pagination['page_size'] ?? null,
@@ -54,52 +39,13 @@ class MeetingRegistrantCollectionDTO implements ArrayAccess, Countable, Iterator
     }
 
     /**
-     * Get all registrants in the collection.
+     * Get all registrants (alias for all()).
      *
      * @return MeetingRegistrantDTO[]
      */
-    public function all(): array
+    public function registrants(): array
     {
-        return $this->registrants;
-    }
-
-    /**
-     * Get the first registrant in the collection.
-     */
-    public function first(): ?MeetingRegistrantDTO
-    {
-        return $this->registrants[0] ?? null;
-    }
-
-    /**
-     * Check if there are more pages available.
-     */
-    public function hasMorePages(): bool
-    {
-        return ! empty($this->nextPageToken);
-    }
-
-    /**
-     * Filter registrants by a callback.
-     */
-    public function filter(callable $callback): self
-    {
-        return new self(
-            registrants: array_filter($this->registrants, $callback),
-            pageCount: $this->pageCount,
-            pageNumber: $this->pageNumber,
-            pageSize: $this->pageSize,
-            totalRecords: $this->totalRecords,
-            nextPageToken: $this->nextPageToken
-        );
-    }
-
-    /**
-     * Map registrants through a callback.
-     */
-    public function map(callable $callback): array
-    {
-        return array_map($callback, $this->registrants);
+        return $this->all();
     }
 
     /**
@@ -132,73 +78,8 @@ class MeetingRegistrantCollectionDTO implements ArrayAccess, Countable, Iterator
     public function toArray(): array
     {
         return [
-            'registrants' => array_map(fn (MeetingRegistrantDTO $registrant) => $registrant->toArray(), $this->registrants),
-            'pagination' => [
-                'page_count' => $this->pageCount,
-                'page_number' => $this->pageNumber,
-                'page_size' => $this->pageSize,
-                'total_records' => $this->totalRecords,
-                'next_page_token' => $this->nextPageToken,
-            ],
+            'registrants' => array_map(fn (MeetingRegistrantDTO $registrant) => $registrant->toArray(), $this->items),
+            'pagination' => $this->getPaginationInfo(),
         ];
-    }
-
-    // Iterator implementation
-    public function current(): MeetingRegistrantDTO
-    {
-        return $this->registrants[$this->position];
-    }
-
-    public function key(): int
-    {
-        return $this->position;
-    }
-
-    public function next(): void
-    {
-        $this->position++;
-    }
-
-    public function rewind(): void
-    {
-        $this->position = 0;
-    }
-
-    public function valid(): bool
-    {
-        return isset($this->registrants[$this->position]);
-    }
-
-    // Countable implementation
-    public function count(): int
-    {
-        return count($this->registrants);
-    }
-
-    // ArrayAccess implementation
-    public function offsetExists(mixed $offset): bool
-    {
-        return isset($this->registrants[$offset]);
-    }
-
-    public function offsetGet(mixed $offset): ?MeetingRegistrantDTO
-    {
-        return $this->registrants[$offset] ?? null;
-    }
-
-    public function offsetSet(mixed $offset, mixed $value): void
-    {
-        if ($value instanceof MeetingRegistrantDTO) {
-            if (is_null($offset)) {
-                $this->registrants[] = $value;
-            } else {
-                $this->registrants[$offset] = $value;
-            }
-        }
-    }
-
-    public function offsetUnset(mixed $offset): void
-    {
-        unset($this->registrants[$offset]);
     }
 }
