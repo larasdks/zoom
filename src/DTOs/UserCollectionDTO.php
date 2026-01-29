@@ -11,7 +11,6 @@ use laraSDKs\Zoom\Enums\UserType;
  */
 class UserCollectionDTO extends BaseCollectionDTO
 {
-
     /**
      * Create a UserCollectionDTO from API response.
      */

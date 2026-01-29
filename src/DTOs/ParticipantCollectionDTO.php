@@ -11,7 +11,6 @@ use laraSDKs\Zoom\Enums\ParticipantStatus;
  */
 class ParticipantCollectionDTO extends BaseCollectionDTO
 {
-
     /**
      * Create a ParticipantCollectionDTO from API response.
      */

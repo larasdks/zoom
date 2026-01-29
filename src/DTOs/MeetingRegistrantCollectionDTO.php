@@ -9,7 +9,6 @@ namespace laraSDKs\Zoom\DTOs;
  */
 class MeetingRegistrantCollectionDTO extends BaseCollectionDTO
 {
-
     /**
      * Create a MeetingRegistrantCollectionDTO from API response.
      */

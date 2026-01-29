@@ -10,6 +10,7 @@ use Iterator;
  * Base collection class for paginated Zoom API responses.
  *
  * @template T
+ *
  * @implements Iterator<int, T>
  * @implements ArrayAccess<int, T>
  */
@@ -85,9 +86,6 @@ abstract class BaseCollectionDTO implements ArrayAccess, Countable, Iterator
 
     /**
      * Filter items by a callback.
-     *
-     * @param callable $callback
-     * @return static
      */
     public function filter(callable $callback): static
     {

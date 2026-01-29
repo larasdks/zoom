@@ -11,7 +11,6 @@ use laraSDKs\Zoom\Enums\MeetingType;
  */
 class MeetingCollectionDTO extends BaseCollectionDTO
 {
-
     /**
      * Create a MeetingCollectionDTO from API response.
      */

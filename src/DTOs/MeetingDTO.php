@@ -43,7 +43,6 @@ readonly class MeetingDTO
 
     /**
      * Create a MeetingDTO from API response array.
-     *
      */
     public static function fromArray(array $data): self
     {
